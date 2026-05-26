@@ -1,0 +1,1028 @@
+!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÉLITE — Tienda de Ropa</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --text: #f0ece4;
+    --muted: #888;
+    --danger: #e05555;
+    --success: #5ebd8c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 24px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,13,13,0.92);
+    backdrop-filter: blur(12px);
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 6px;
+    color: var(--gold);
+  }
+
+  .logo span {
+    color: var(--text);
+    font-weight: 400;
+    font-style: italic;
+    font-size: 14px;
+    display: block;
+    letter-spacing: 3px;
+    margin-top: -4px;
+  }
+
+  .cart-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 2px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all .2s;
+  }
+  .cart-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .cart-count {
+    background: var(--gold);
+    color: #000;
+    font-size: 11px;
+    font-weight: 700;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── WELCOME MODAL ── */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+    animation: fadeIn .3s ease;
+  }
+  .overlay.hidden { display: none; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 56px 48px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    animation: slideUp .4s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+  @keyframes slideUp { from { transform: translateY(30px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .modal-sub {
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 2px;
+    margin-bottom: 36px;
+  }
+
+  .inp {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 14px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color .2s;
+    border-radius: 2px;
+    margin-bottom: 16px;
+  }
+  .inp:focus { border-color: var(--gold); }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--gold);
+    color: #000;
+    border: none;
+    padding: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background .2s, transform .1s;
+  }
+  .btn-primary:hover { background: var(--gold-light); }
+  .btn-primary:active { transform: scale(0.98); }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 0;
+    min-height: calc(100vh - 80px);
+  }
+
+  /* ── PRODUCTS SECTION ── */
+  .products-section {
+    padding: 48px;
+    border-right: 1px solid var(--border);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 36px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .search-wrap {
+    position: relative;
+    margin-bottom: 32px;
+  }
+  .search-wrap input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 18px 12px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    border-radius: 2px;
+    transition: border-color .2s;
+  }
+  .search-wrap input:focus { border-color: var(--gold); }
+  .search-icon {
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 15px;
+    pointer-events: none;
+  }
+  .search-result {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--gold);
+    min-height: 18px;
+  }
+
+  /* ── PRODUCT CARDS ── */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px 24px;
+    cursor: pointer;
+    transition: all .25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .product-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 2px;
+    background: var(--gold);
+    transition: width .3s;
+  }
+  .product-card:hover::after { width: 100%; }
+  .product-card:hover { border-color: #3a3a3a; transform: translateY(-2px); }
+  .product-card.eliminated {
+    opacity: 0.3;
+    pointer-events: none;
+  }
+  .product-card.eliminated::before {
+    content: 'ELIMINADO';
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    background: rgba(224,85,85,0.05);
+  }
+
+  .product-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .product-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .product-price {
+    color: var(--gold);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .product-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .btn-add {
+    flex: 1;
+    background: var(--gold);
+    color: #000;
+    border: none;
+    padding: 9px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background .2s;
+  }
+  .btn-add:hover { background: var(--gold-light); }
+
+  .btn-icon {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 9px 12px;
+    cursor: pointer;
+    border-radius: 2px;
+    font-size: 13px;
+    transition: all .2s;
+  }
+  .btn-icon:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── ACCESORIOS ── */
+  .acc-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    font-style: italic;
+  }
+  .acc-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .acc-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .acc-chip:hover { border-color: var(--gold); color: var(--gold); }
+ /* ── CART SIDEBAR ── */
+  .cart-sidebar {
+    padding: 48px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .cart-header {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cart-empty {
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    padding: 40px 0;
+    font-style: italic;
+  }
+
+  .cart-items {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 400px;
+  }
+  .cart-items::-webkit-scrollbar { width: 4px; }
+  .cart-items::-webkit-scrollbar-track { background: var(--surface); }
+  .cart-items::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .cart-item {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    animation: slideUp .2s ease;
+  }
+  .ci-name {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .ci-qty {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .ci-price {
+    color: var(--gold);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: right;
+  }
+
+  .cart-totals {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 10px;
+    color: var(--muted);
+  }
+  .total-row.final {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .total-row.final span:last-child { color: var(--gold); }
+
+  .btn-factura {
+    width: 100%;
+    background: none;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border-radius: 2px;
+    margin-top: 20px;
+    transition: all .2s;
+  }
+  .btn-factura:hover { background: var(--gold); color: #000; }
+
+  /* ── QTY MODAL ── */
+  .qty-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 40px 36px;
+    max-width: 360px;
+    width: 90%;
+    animation: slideUp .3s ease;
+    text-align: center;
+  }
+  .qty-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    margin-bottom: 24px;
+  }
+  .qty-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  .qty-btn {
+    width: 40px; height: 40px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all .2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qty-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .qty-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    min-width: 50px;
+    text-align: center;
+  }
+
+  /* ── UPDATE MODAL ── */
+  .update-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 40px 36px;
+    max-width: 360px;
+    width: 90%;
+    animation: slideUp .3s ease;
+  }
+
+  /* ── INVOICE MODAL ── */
+  .invoice-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 48px;
+    max-width: 580px;
+    width: 92%;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slideUp .4s ease;
+  }
+  .invoice-modal::-webkit-scrollbar { width: 4px; }
+  .invoice-modal::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .inv-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 4px;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .inv-sub {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 36px;
+  }
+  .inv-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .inv-meta strong { color: var(--text); }
+  .inv-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+  .inv-table th {
+    text-align: left;
+    padding: 10px 0;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: 500;
+    border-bottom: 1px solid var(--border);
+  }
+  .inv-table td {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(42,42,42,0.5);
+  }
+  .inv-table td:last-child { text-align: right; color: var(--gold); }
+
+  .inv-totals { margin-top: 24px; }
+  .inv-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--muted);
+    padding: 6px 0;
+  }
+  .inv-row.grand {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--text);
+    padding-top: 20px;
+    margin-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .inv-row.grand span:last-child { color: var(--gold); }
+
+  .inv-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+  }
+  .inv-actions button {
+    flex: 1;
+    padding: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all .2s;
+  }
+  .btn-dl { background: var(--gold); color: #000; border: none; }
+  .btn-dl:hover { background: var(--gold-light); }
+  .btn-close-inv { background: none; border: 1px solid var(--border); color: var(--muted); }
+  .btn-close-inv:hover { border-color: var(--text); color: var(--text); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 32px; right: 32px;
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    color: var(--text);
+    padding: 14px 24px;
+    font-size: 13px;
+    border-radius: 2px;
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all .3s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    main { grid-template-columns: 1fr; }
+    .products-section { padding: 24px; }
+    .cart-sidebar { border-top: 1px solid var(--border); padding: 24px; }
+    header { padding: 16px 24px; }
+    .products-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- WELCOME OVERLAY -->
+<div class="overlay" id="welcomeOverlay">
+  <div class="modal">
+    <div class="modal-title">ÉLITE</div>
+    <div class="modal-sub">TIENDA DE ROPA EXCLUSIVA</div>
+    <input class="inp" id="clientName" type="text" placeholder="¿Cómo te llamas?" autofocus>
+    <button class="btn-primary" onclick="startShopping()">INGRESAR A LA TIENDA</button>
+  </div>
+</div>
+
+<!-- QTY MODAL -->
+<div class="overlay hidden" id="qtyOverlay">
+  <div class="qty-modal">
+    <div class="qty-title" id="qtyTitle">Agregar al carrito</div>
+    <div class="qty-controls">
+      <button class="qty-btn" onclick="changeQty(-1)">−</button>
+      <div class="qty-val" id="qtyVal">1</div>
+      <button class="qty-btn" onclick="changeQty(1)">+</button>
+    </div>
+    <button class="btn-primary" onclick="confirmAdd()">AGREGAR AL CARRITO</button>
+  </div>
+</div>
+
+<!-- UPDATE MODAL -->
+<div class="overlay hidden" id="updateOverlay">
+  <div class="update-modal">
+    <div class="qty-title" id="updateTitle">Actualizar precio</div>
+    <input class="inp" id="newPrice" type="number" placeholder="Nuevo precio ($)">
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn-primary" onclick="confirmUpdate()">ACTUALIZAR</button>
+      <button class="btn-icon" style="flex:0.4" onclick="closeUpdate()">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- INVOICE MODAL -->
+<div class="overlay hidden" id="invoiceOverlay">
+  <div class="invoice-modal" id="invoiceContent">
+    <!-- Generated by JS -->
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">ÉLITE<span>maison de mode</span></div>
+  <button class="cart-btn" onclick="scrollToCart()">
+    🛍 Carrito
+    <div class="cart-count" id="cartCount">0</div>
+  </button>
+</header>
+
+<!-- MAIN -->
+<main>
+  <!-- PRODUCTS -->
+  <section class="products-section">
+    <div class="section-header">
+      <div class="section-title">Colección</div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Buscar producto..." oninput="searchProduct(this.value)">
+      <div class="search-result" id="searchResult"></div>
+    </div>
+
+    <!-- PRODUCT CARDS -->
+    <div class="products-grid" id="productsGrid"></div>
+
+    <!-- ACCESORIOS -->
+    <div class="acc-title">— Accesorios —</div>
+    <div class="acc-grid" id="accGrid"></div>
+  </section>
+
+  <!-- CART -->
+  <aside class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">Tu Selección</div>
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty" id="cartEmpty">El carrito está vacío</div>
+    </div>
+    <div class="cart-totals" id="cartTotals" style="display:none">
+      <div class="total-row"><span>Subtotal</span><span id="subtotalVal">$0</span></div>
+      <div class="total-row"><span>IVA (19%)</span><span id="ivaVal">$0</span></div>
+      <div class="total-row final"><span>Total</span><span id="totalVal">$0</span></div>
+    </div>
+    <button class="btn-factura" onclick="showInvoice()">VER FACTURA</button>
+  </aside>
+</main>
+
+<script>
+  // ── STATE ──
+  let clientName = '';
+  let productos = [
+    { name: 'Camisetas', price: 50000, icon: '👕', active: true },
+    { name: 'Pantalones', price: 80000, icon: '👖', active: true },
+    { name: 'Zapatos', price: 120000, icon: '👟', active: true },
+    { name: 'Accesorios', price: 30000, icon: '👜', active: true },
+  ];
+  const accesorios = ['Relojes','Cadenas','Pulseras','Gafas','Anillos','Perfumes'];
+  let carrito = []; // {name, price, qty}
+
+  let pendingProductIdx = -1;
+  let pendingQty = 1;
+  let pendingUpdateIdx = -1;
+
+  // ── START ──
+  function startShopping() {
+    const n = document.getElementById('clientName').value.trim();
+    if (!n) { showToast('Por favor ingresa tu nombre'); return; }
+    clientName = n;
+    document.getElementById('welcomeOverlay').classList.add('hidden');
+    renderProducts();
+    renderAccesorios();
+    showToast(`¡Bienvenid@, ${clientName}! ✨`);
+  }
+
+  document.getElementById('clientName').addEventListener('keydown', e => {
+    if (e.key === 'Enter') startShopping();
+  });
+
+  // ── RENDER PRODUCTS ──
+  function renderProducts() {
+    const grid = document.getElementById('productsGrid');
+    grid.innerHTML = '';
+    productos.forEach((p, i) => {
+      const div = document.createElement('div');
+      div.className = 'product-card' + (!p.active ? ' eliminated' : '');
+      div.innerHTML = `
+        <span class="product-icon">${p.icon}</span>
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">$${p.price.toLocaleString('es-CO')}</div>
+        ${p.active ? `
+        <div class="product-actions">
+          <button class="btn-add" onclick="openQty(${i})">AGREGAR</button>
+          <button class="btn-icon" title="Actualizar precio" onclick="openUpdate(${i})">✏️</button>
+          <button class="btn-icon" title="Eliminar" onclick="deleteProduct(${i})">🗑</button>
+        </div>` : ''}
+      `;
+      grid.appendChild(div);
+    });
+  }
+
+  function renderAccesorios() {
+    const grid = document.getElementById('accGrid');
+    grid.innerHTML = '';
+    accesorios.forEach(a => {
+      const chip = document.createElement('div');
+      chip.className = 'acc-chip';
+      chip.textContent = a;
+      chip.onclick = () => {
+        openQtyForAcc(a);
+      };
+      grid.appendChild(chip);
+    });
+  }
+
+  // ── QTY MODAL ──
+  function openQty(idx) {
+    pendingProductIdx = idx;
+    pendingQty = 1;
+    document.getElementById('qtyVal').textContent = 1;
+    document.getElementById('qtyTitle').textContent = `Agregar — ${productos[idx].name}`;
+    document.getElementById('qtyOverlay').classList.remove('hidden');
+  }
+
+  function openQtyForAcc(name) {
+    pendingProductIdx = -99;
+    pendingQty = 1;
+    document.getElementById('qtyVal').textContent = 1;
+    document.getElementById('qtyTitle').textContent = `Agregar — ${name}`;
+    document.getElementById('qtyOverlay').classList.remove('hidden');
+    document.getElementById('qtyOverlay').dataset.accName = name;
+  }
+
+  function changeQty(d) {
+    pendingQty = Math.max(1, pendingQty + d);
+    document.getElementById('qtyVal').textContent = pendingQty;
+  }
+
+  function confirmAdd() {
+    if (pendingProductIdx === -99) {
+      const name = document.getElementById('qtyOverlay').dataset.accName;
+      addToCart(name, 30000, pendingQty);
+    } else {
+      const p = productos[pendingProductIdx];
+      addToCart(p.name, p.price, pendingQty);
+    }
+    document.getElementById('qtyOverlay').classList.add('hidden');
+  }
+
+  // ── UPDATE MODAL ──
+  function openUpdate(idx) {
+    pendingUpdateIdx = idx;
+    document.getElementById('updateTitle').textContent = `Actualizar — ${productos[idx].name}`;
+    document.getElementById('newPrice').value = '';
+    document.getElementById('updateOverlay').classList.remove('hidden');
+  }
+
+  function confirmUpdate() {
+    const val = parseInt(document.getElementById('newPrice').value);
+    if (!val || val <= 0) { showToast('Precio inválido'); return; }
+    productos[pendingUpdateIdx].price = val;
+    document.getElementById('updateOverlay').classList.add('hidden');
+    renderProducts();
+    showToast('Precio actualizado ✓');
+  }
+
+  function closeUpdate() {
+    document.getElementById('updateOverlay').classList.add('hidden');
+  }
+
+  // ── DELETE ──
+  function deleteProduct(idx) {
+    productos[idx].active = false;
+    renderProducts();
+    showToast(`${productos[idx].name} eliminado`);
+  }
+
+  // ── SEARCH ──
+  function searchProduct(q) {
+    const r = document.getElementById('searchResult');
+    if (!q.trim()) { r.textContent = ''; return; }
+    const found = productos.find(p => p.active && p.name.toLowerCase().includes(q.toLowerCase()));
+    r.textContent = found
+      ? `✓ Encontrado: ${found.name} — $${found.price.toLocaleString('es-CO')}`
+      : '✗ No encontrado';
+    r.style.color = found ? 'var(--gold)' : 'var(--danger)';
+  }
+
+  // ── CART ──
+  function addToCart(name, price, qty) {
+    const existing = carrito.find(c => c.name === name);
+    if (existing) {
+      existing.qty += qty;
+    } else {
+      carrito.push({ name, price, qty });
+    }
+    renderCart();
+    showToast(`${name} ×${qty} agregado ✓`);
+  }
+
+  function renderCart() {
+    const container = document.getElementById('cartItems');
+    const empty = document.getElementById('cartEmpty');
+    const totals = document.getElementById('cartTotals');
+    const count = document.getElementById('cartCount');
+
+    const totalItems = carrito.reduce((s, c) => s + c.qty, 0);
+    count.textContent = totalItems;
+
+    if (carrito.length === 0) {
+      empty.style.display = 'block';
+      totals.style.display = 'none';
+      container.innerHTML = '';
+      container.appendChild(empty);
+      return;
+    }
+
+    empty.style.display = 'none';
+    totals.style.display = 'block';
+    container.innerHTML = '';
+
+    let subtotal = 0;
+    carrito.forEach(item => {
+      const lineTotal = item.price * item.qty;
+      subtotal += lineTotal;
+      const div = document.createElement('div');
+      div.className = 'cart-item';
+      div.innerHTML = `
+        <div>
+          <div class="ci-name">${item.name}</div>
+          <div class="ci-qty">× ${item.qty}</div>
+        </div>
+        <div class="ci-price">$${lineTotal.toLocaleString('es-CO')}</div>
+      `;
+      container.appendChild(div);
+    });
+
+    const iva = subtotal * 0.19;
+    const total = subtotal + iva;
+    document.getElementById('subtotalVal').textContent = `$${subtotal.toLocaleString('es-CO')}`;
+    document.getElementById('ivaVal').textContent = `$${Math.round(iva).toLocaleString('es-CO')}`;
+    document.getElementById('totalVal').textContent = `$${Math.round(total).toLocaleString('es-CO')}`;
+  }
+
+  // ── INVOICE ──
+  function showInvoice() {
+    if (carrito.length === 0) { showToast('El carrito está vacío'); return; }
+    const overlay = document.getElementById('invoiceOverlay');
+    const content = document.getElementById('invoiceContent');
+
+    let subtotal = 0;
+    let rows = '';
+    carrito.forEach(item => {
+      const line = item.price * item.qty;
+      subtotal += line;
+      rows += `
+        <tr>
+          <td>${item.name}</td>
+          <td style="text-align:center;color:var(--muted)">${item.qty}</td>
+          <td style="text-align:right;color:var(--muted)">$${item.price.toLocaleString('es-CO')}</td>
+          <td>$${line.toLocaleString('es-CO')}</td>
+        </tr>`;
+    });
+
+    const iva = subtotal * 0.19;
+    const total = subtotal + iva;
+    const fecha = new Date().toLocaleDateString('es-CO', {year:'numeric',month:'long',day:'numeric'});
+
+    content.innerHTML = `
+      <div class="inv-logo">ÉLITE</div>
+      <div class="inv-sub">FACTURA DE COMPRA</div>
+      <div class="inv-meta">
+        <div><div>Cliente</div><strong>${clientName}</strong></div>
+        <div style="text-align:right"><div>Fecha</div><strong>${fecha}</strong></div>
+      </div>
+      <table class="inv-table">
+        <thead><tr>
+          <th>PRODUCTO</th>
+          <th style="text-align:center">CANT.</th>
+          <th style="text-align:right">PRECIO</th>
+          <th style="text-align:right">TOTAL</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="inv-totals">
+        <div class="inv-row"><span>Subtotal</span><span>$${subtotal.toLocaleString('es-CO')}</span></div>
+        <div class="inv-row"><span>IVA (19%)</span><span>$${Math.round(iva).toLocaleString('es-CO')}</span></div>
+        <div class="inv-row grand"><span>TOTAL</span><span>$${Math.round(total).toLocaleString('es-CO')}</span></div>
+      </div>
+      <div class="inv-actions">
+        <button class="btn-dl" onclick="downloadInvoice()">⬇ DESCARGAR HTML</button>
+        <button class="btn-close-inv" onclick="closeInvoice()">CERRAR</button>
+      </div>
+    `;
+
+    overlay.classList.remove('hidden');
+  }
+
+  function closeInvoice() {
+    document.getElementById('invoiceOverlay').classList.add('hidden');
+  }
+
+  function downloadInvoice() {
+    let subtotal = 0;
+    let rows = '';
+    carrito.forEach(item => {
+      const line = item.price * item.qty;
+      subtotal += line;
+      rows += `<tr><td>${item.name}</td><td>${item.qty}</td><td>$${item.price.toLocaleString('es-CO')}</td><td>$${line.toLocaleString('es-CO')}</td></tr>`;
+    });
+    const iva = subtotal * 0.19;
+    const total = subtotal + iva;
+    const fecha = new Date().toLocaleDateString('es-CO');
+
+    const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Factura ÉLITE</title>
+    <style>body{font-family:Georgia,serif;background:#0d0d0d;color:#f0ece4;padding:40px}
+    h1{color:#c9a84c;letter-spacing:6px}table{width:100%;border-collapse:collapse;margin:20px 0}
+    th{border-bottom:1px solid #2a2a2a;padding:10px;text-align:left;color:#888;font-size:12px}
+    td{padding:12px 10px;border-bottom:1px solid #1e1e1e}.total{font-size:22px;color:#c9a84c}</style>
+    </head><body><h1>ÉLITE</h1><p>Cliente: <b>${clientName}</b> — ${fecha}</p>
+    <table><thead><tr><th>PRODUCTO</th><th>CANT.</th><th>PRECIO</th><th>TOTAL</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+    <p>Subtotal: $${subtotal.toLocaleString('es-CO')}</p>
+    <p>IVA: $${Math.round(iva).toLocaleString('es-CO')}</p>
+    <p class="total">TOTAL: $${Math.round(total).toLocaleString('es-CO')}</p>
+    </body></html>`;
+
+    const blob = new Blob([html], {type:'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `factura-elite-${clientName.replace(/\s/g,'-')}.html`;
+    a.click();
+    showToast('Factura descargada ✓');
+  }
+
+  // ── TOAST ──
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function scrollToCart() {
+    document.getElementById('cartSidebar').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Close modals on overlay click
+  ['qtyOverlay','updateOverlay','invoiceOverlay'].forEach(id => {
+    document.getElementById(id).addEventListener('click', function(e) {
+      if (e.target === this) this.classList.add('hidden');
+    });
+  });
+</script>
+</body>
+</html>
